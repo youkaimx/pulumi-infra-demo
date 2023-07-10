@@ -3,6 +3,8 @@
 import pulumi
 import pulumi_aws as aws
 from pulumi_aws import s3, cloudfront, iam
+import mimetypes
+import os
 
 
 # Create an AWS resource (S3 Bucket)
@@ -56,7 +58,12 @@ cf_distribution = cloudfront.Distribution(
         )
     ],
     default_root_object="index.html",
-    default_cache_behavior=aws.cloudfront.DistributionDefaultCacheBehaviorArgs(
+    custom_error_responses=[
+        cloudfront.DistributionCustomErrorResponseArgs(
+            error_code=404, response_code=200, response_page_path="/index.html"
+        )
+    ],
+    default_cache_behavior=cloudfront.DistributionDefaultCacheBehaviorArgs(
         allowed_methods=[
             "OPTIONS",
             "GET",
@@ -105,6 +112,18 @@ s3_origin_acess_from_cloudfront_bucket_policy = s3.BucketPolicy(
     }
     """,
 )
+
+content_dir = "../static"
+for file in os.listdir(content_dir):
+    filepath = os.path.join(content_dir, file)
+    mime_type, _ = mimetypes.guess_type(filepath)
+    obj = s3.BucketObject(
+        file,
+        bucket=s3_origin.bucket,
+        source=pulumi.FileAsset(filepath),
+        content_type=mime_type,
+    )
+
 
 # Outputs
 pulumi.export("bucket_name", s3_origin.id)
