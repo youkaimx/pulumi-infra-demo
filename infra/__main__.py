@@ -5,6 +5,7 @@ import pulumi_aws as aws
 from pulumi_aws import s3, cloudfront, iam
 import mimetypes
 import os
+import json
 
 
 # Create an AWS resource (S3 Bucket)
@@ -83,34 +84,34 @@ cf_distribution = cloudfront.Distribution(
         ),
     ),
 )
-#
+
+policy = iam.get_policy_document_output(
+    statements=[
+        aws.iam.GetPolicyDocumentStatementArgs(
+            principals=[
+                aws.iam.GetPolicyDocumentStatementPrincipalArgs(
+                    type="Service",
+                    identifiers=["cloudfront.amazonaws.com"],
+                )
+            ],
+            actions=["s3:GetObject"],
+            resources=["arn:aws:s3:::demo-class-dev-cloudfront-origin/*"],
+            conditions=[
+                iam.GetPolicyDocumentStatementConditionArgs(
+                    test="StringEquals",
+                    variable="AWS:SourceArn",
+                    values=[pulumi.Output.concat("", cf_distribution.arn)],
+                )
+            ],
+        )
+    ]
+)
 
 
 s3_origin_acess_from_cloudfront_bucket_policy = s3.BucketPolicy(
     "s3_origin_access_from_cloudfront_bucket_policy",
     bucket=s3_origin.id,
-    policy="""
-    {
-        "Version": "2008-10-17",
-        "Id": "PolicyForCloudFrontPrivateContent",
-        "Statement": [
-            {
-                "Sid": "AllowCloudFrontServicePrincipal",
-                "Effect": "Allow",
-                "Principal": {
-                    "Service": "cloudfront.amazonaws.com"
-                },
-                "Action": "s3:GetObject",
-                "Resource": "arn:aws:s3:::demo-class-dev-cloudfront-origin/*",
-                "Condition": {
-                    "StringEquals": {
-                      "AWS:SourceArn": "arn:aws:cloudfront::014834224223:distribution/E4DVVK9X4W4MD"
-                    }
-                }
-            }
-        ]
-    }
-    """,
+    policy=policy.json,
 )
 
 content_dir = "../static"
