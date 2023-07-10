@@ -1,0 +1,6 @@
+name: cloud-infra-demo-class
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: An AWS Python Pulumi demo
