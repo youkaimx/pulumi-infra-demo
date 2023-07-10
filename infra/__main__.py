@@ -74,25 +74,10 @@ cf_distribution = cloudfront.Distribution(
                 forward="none",
             ),
         ),
-        # cache_policy_id=cloudfront.CachePolicy(
-        #    "cache_policy",
-        #    opts=cloudfront.CachePolicyParametersInCacheKeyAndForwardedToOriginArgs(
-        #        cookies_config=cloudfront.CachePolicyParametersInCacheKeyAndForwardedToOriginCookiesConfigArgs(
-        #            cookie_behavior="none"
-        #        ),
-        #        headers_config=cloudfront.CachePolicyParametersInCacheKeyAndForwardedToOriginHeadersConfigArgs(
-        #            header_behavior="none"
-        #        ),
-        #        query_strings_config=cloudfront.CachePolicyParametersInCacheKeyAndForwardedToOriginQueryStringsConfigArgs(
-        #            query_string_behavior="none"
-        #        ),
-        #    ),
-        # ),
     ),
 )
 #
-# Export the name of the
-# print(f"Visit your page at https://{cf_distribution.domain_name}")
+
 
 s3_origin_acess_from_cloudfront_bucket_policy = s3.BucketPolicy(
     "s3_origin_access_from_cloudfront_bucket_policy",
@@ -124,3 +109,6 @@ s3_origin_acess_from_cloudfront_bucket_policy = s3.BucketPolicy(
 # Outputs
 pulumi.export("bucket_name", s3_origin.id)
 pulumi.export("cloudfront_url", cf_distribution.domain_name)
+pulumi.export(
+    "static_website_url", pulumi.Output.concat("https://", cf_distribution.domain_name)
+)
