@@ -1,5 +1,11 @@
 # An Introduction to Infrastructure as Code
 
+## Agenda
+- What is infrastrucuture and how does it changes in the cloud
+- What is Infrastructure as Code or IaC
+- How do you use IaC in your development workflow
+- An end to end example
+
 ## Infrastructure
 - Compute power, storage, networks are usually conceived as infrastructure, elements that support the use of software
 - More recently with the rise of the "as code" practices and the cloud, elements like permissions, network configuration and others are also considered infrastructure
@@ -21,7 +27,9 @@
 
 ## Example code
 - This example involves the usage of
+  - git and pre-commit hooks)
   - AWS
     - Cloudfront
     - S3 Bucket as an Origin for Cloudfront
+    - Bucket policies, Origin Access Controls
   - Python flavored Pulumi
